@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'style.dart' as style;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
+
 
 
 void main() {
@@ -21,6 +25,7 @@ class _MyAppState extends State<MyApp> {
 
   var tab = 0;
   var data =[];
+  var userImage;
 
   getData() async{
     var result = await http.get(Uri.parse('https://codingapple1.github.io/app/data.json'));
@@ -46,7 +51,22 @@ class _MyAppState extends State<MyApp> {
       appBar: AppBar(
         title: Text('joystagram'),
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.add_box_outlined),
+          IconButton(onPressed: () async {
+            var picker = ImagePicker();
+            var image = await picker.pickImage(source: ImageSource.gallery);
+            if(image != null){
+              setState((){
+                userImage = File(image.path);
+              });
+
+            }
+
+            Navigator.push(context, MaterialPageRoute(builder: (c)
+              => Upload(userImage : userImage)
+            )
+            );
+
+          }, icon: Icon(Icons.add_box_outlined),
           iconSize: 30,)
         ],
       ),
@@ -85,4 +105,32 @@ class Home extends StatelessWidget {
     });
   }
 }
+
+
+class Upload extends StatelessWidget {
+  const Upload({Key? key, this.userImage}) : super(key: key);
+  final userImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('new image'),
+        actions: [
+          IconButton(onPressed: (){
+            Navigator.pop(context);
+          }, icon: Icon(Icons.close))
+        ],
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('image upload'),
+            Image.file(userImage)
+          ],
+      ),
+    );
+  }
+}
+
 
